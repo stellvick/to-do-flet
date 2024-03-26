@@ -12,20 +12,32 @@ from flet import (
     TextAlign,
     UserControl
 )
-from flet_core import View, padding
 
-from src.utils.app_layout import AppLayout
+from flet_core import Control
+from src.components.base_components.app_layout import AppLayout
+from src.utils.enums import Routes
 
 
-class TrelloApp(UserControl):
-    def __init__(self, page: Page):
+class Scaffold(UserControl):
+    def __init__(
+            self,
+            page: Page,
+            content: Control = None,
+    ):
         super().__init__()
-        self.layout = None
         self.page = page
+        self.layout = AppLayout(
+            self,
+            self.page,
+            tight=True,
+            expand=True,
+            vertical_alignment="start",
+            content=Container(content=content)
+        )
         self.appbar_items = [
-            PopupMenuItem(text="Login"),
+            PopupMenuItem(text="Configuração", on_click=lambda _: page.go(Routes.CONFIG.value)),
             PopupMenuItem(),  # divider
-            PopupMenuItem(text="Settings")
+            PopupMenuItem(text="Sair", on_click=lambda _: page.go(Routes.HOME.value))
         ]
         self.appbar = AppBar(
             leading=Icon(icons.GRID_GOLDENRATIO_ROUNDED),
@@ -44,26 +56,4 @@ class TrelloApp(UserControl):
             ],
         )
         self.page.appbar = self.appbar
-        self.page.update()
-
-    def build(self):
-        self.layout = AppLayout(
-            self,
-            self.page,
-            tight=True,
-            expand=True,
-            vertical_alignment="start",
-        )
-        return self.layout
-
-    def initialize(self):
-        self.page.views.clear()
-        self.page.views.append(
-            View(
-                "/",
-                [self.appbar, self.layout],
-                padding=padding.all(0),
-                bgcolor=colors.BLUE_GREY_200,
-            )
-        )
         self.page.update()
